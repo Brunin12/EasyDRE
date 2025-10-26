@@ -1,135 +1,126 @@
 <?php
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Empresa_model extends CI_Model
 {
-
-  public function get_empresa($data)
-  {
-    return $this->db->get_where('empresa', $data)->row();
-  }
-
-  public function get_empresa_id($id)
-  {
-    return $this->db->get_where('empresa', array('id_empresa' => $id))->row();
-  }
-
-  public function get()
-  {
-    $empresa = $this->session_m->userdata('empresa');
-    if (isset($empresa)) {
-      $id = $empresa['id_empresa'];
-      return $this->db->get_where('empresa', array('id_empresa' => $id))->row();
+    public function get_empresa($data)
+    {
+        return $this->db->get_where('empresa', $data)->row();
     }
-    return null;
 
-  }
-
-
-  public function inserir($data)
-  {
-    $this->db->insert('empresa', $data);
-    return $this->db->insert_id();
-  }
-
-  public function atualiza($data, $onde)
-  {
-    $this->db->update('empresa', $data, $onde);
-  }
-
-  public function is_logado()
-  {
-    $data = $this->session_m->userdata('empresa');
-    if (isset($data)) {
-      return true;
+    public function get_empresa_id($id)
+    {
+        return $this->db->get_where('empresa', ['id_empresa' => $id])->row();
     }
-    return false;
-  }
 
-  public function gerar_dre($empresa)
-  {
+    public function get()
+    {
+        $empresa_session = $this->session->userdata('empresa');
+        if (!$empresa_session)
+            return null;
 
-    // Definindo os campos base
-    $saldo = ($empresa->saldo);
-    $lucro_liquido = ($empresa->lucro_liquido);
-    $receita = ($empresa->receita);
-    $despesa = ($empresa->despesa);
-    $investimento = ($empresa->investimento);
+        return $this->get_empresa_id($empresa_session['id_empresa']);
+    }
 
-    // Calculando campos derivados
-    $margem_lucro = (($receita / $lucro_liquido) * 100);
-    $roi = (($lucro_liquido / $investimento) * 100);
+    public function inserir($data)
+    {
+        $this->db->insert('empresa', $data);
+        return $this->db->insert_id();
+    }
 
-    // Definindo os campos derivados
-    $dre = array(
-      'saldo' => $saldo,
-      'lucro_liquido' => $lucro_liquido,
-      'receita' => $receita,
-      'despesa' => $despesa,
-      'investimento' => $investimento,
-      'margem_lucro' => $margem_lucro,
-      'roi' => $roi
-    );
+    public function atualiza($data, $where)
+    {
+        $this->db->update('empresa', $data, $where);
+    }
 
-    return $dre;
-  }
+    public function existe_empresa($id_usuario = 0)
+    {
+        if ($id_usuario == 0) {
+            $id_usuario = $this->session->userdata('user')['id'];
+        }
 
+        return $this->db
+            ->where('id_usuario', $id_usuario)
+            ->get('empresa')
+            ->row_array() !== null;
+    }
 
+    public function get_empresa_by_user($id_usuario = 0)
+    {
+        if ($id_usuario == 0) {
+            $id_usuario = $this->session->userdata('user')['id'];
+        }
 
-  public function gerar_dre_pdf($empresa)
-  {
-    $this->load->library('tcpdf');
-    $pdf = new TCPDF();
-    $pdf->AddPage();
-    $pdf->SetFillColor(240, 240, 240); // Defina a cor de fundo para preto
-    //$pdf->SetTextColor(255, 255, 255);
-    $pdf->SetX((210 - 160) / 2); // Centralize a tabela horizontalmente
+        return $this->db
+            ->where('id_usuario', $id_usuario)
+            ->get('empresa')
+            ->row_array();
+    }
 
-    $pdf->SetFont('helvetica', '', 12);
-    $pdf->SetFontSize(16);
-    $pdf->Cell(0, 10, 'Demonstração do Resultado do Exercício', 0, 1, 'C');
-    $pdf->SetFontSize(12);
+    public function gerar_dre($empresa)
+    {
+        $saldo = $empresa->saldo;
+        $lucro_liquido = $empresa->lucro_liquido;
+        $receita = $empresa->receita;
+        $despesa = $empresa->despesa;
+        $investimento = $empresa->investimento;
 
-    // Definindo os campos base
-    $saldo = ($empresa->saldo);
-    $lucro_liquido = ($empresa->lucro_liquido);
-    $receita = ($empresa->receita);
-    $despesa = ($empresa->despesa);
-    $investimento = ($empresa->investimento);
-    $nome = $empresa->nome;
-    $data = date('H:i:s Y-m-d');
+        $margem_lucro = $lucro_liquido != 0 ? ($lucro_liquido / $receita) * 100 : 0;
+        $roi = $investimento != 0 ? ($lucro_liquido / $investimento) * 100 : 0;
 
-    // Calculando campos derivados
-    $margem_lucro = number_format((($receita / $lucro_liquido) * 100), 2, ',', '.');
-    $roi = number_format((($investimento / $lucro_liquido) * 100), 2, ',', '.');
+        return [
+            'saldo' => $saldo,
+            'lucro_liquido' => $lucro_liquido,
+            'receita' => $receita,
+            'despesa' => $despesa,
+            'investimento' => $investimento,
+            'margem_lucro' => $margem_lucro,
+            'roi' => $roi
+        ];
+    }
 
+    public function gerar_dre_pdf($empresa)
+    {
+        $this->load->library('tcpdf');
+        $pdf = new TCPDF();
+        $pdf->AddPage();
 
-    // Adicione as informações da DRE como uma tabela
-    $pdf->SetFillColor(220, 220, 220);
-    $pdf->Cell(80, 10, 'Categoria', 1, 0, 'C', 1);
-    $pdf->Cell(80, 10, 'Valor (R$)', 1, 1, 'C', 1);
+        $pdf->SetFillColor(240, 240, 240);
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->SetFontSize(16);
+        $pdf->Cell(0, 10, 'Demonstração do Resultado do Exercício', 0, 1, 'C');
+        $pdf->SetFontSize(12);
 
-    $pdf->Cell(80, 10, 'Saldo', 1, 0, 'L');
-    $pdf->Cell(80, 10, number_format($saldo, 2, ',', '.'), 1, 1, 'C');
+        $saldo = $empresa['saldo'];
+        $lucro_liquido = $empresa['lucro_liquido'];
+        $receita = $empresa['receita'];
+        $despesa = $empresa['despesa'];
+        $investimento = $empresa['investimento'];
+        $nome = $empresa['nome'];
+        $data = date('Y-m-d_H-i-s');
 
-    $pdf->Cell(80, 10, 'Receitas', 1, 0, 'L');
-    $pdf->Cell(80, 10, number_format($receita, 2, ',', '.'), 1, 1, 'C');
+        $margem_lucro = $lucro_liquido != 0 ? number_format(($lucro_liquido / $receita) * 100, 2, ',', '.') : '0,00';
+        $roi = $investimento != 0 ? number_format(($lucro_liquido / $investimento) * 100, 2, ',', '.') : '0,00';
 
-    $pdf->Cell(80, 10, 'Despesas', 1, 0, 'L');
-    $pdf->Cell(80, 10, number_format($despesa, 2, ',', '.'), 1, 1, 'C');
+        $pdf->SetFillColor(220, 220, 220);
+        $pdf->Cell(80, 10, 'Categoria', 1, 0, 'C', 1);
+        $pdf->Cell(80, 10, 'Valor (R$)', 1, 1, 'C', 1);
 
-    $pdf->Cell(80, 10, 'Margem de lucro', 1, 0, 'L');
-    $pdf->Cell(80, 10, $margem_lucro . ' (%)', 1, 1, 'C');
+        $pdf->Cell(80, 10, 'Saldo', 1, 0, 'L');
+        $pdf->Cell(80, 10, number_format($saldo, 2, ',', '.'), 1, 1, 'C');
 
-    $pdf->Cell(80, 10, 'R.O.I', 1, 0, 'L');
-    $pdf->Cell(80, 10, $roi . ' (%)', 1, 1, 'C');
+        $pdf->Cell(80, 10, 'Receita', 1, 0, 'L');
+        $pdf->Cell(80, 10, number_format($receita, 2, ',', '.'), 1, 1, 'C');
 
-    // Salve ou envie o PDF
-    $pdf->Output('DRE-'.$nome.'-'.$data.'.pdf', 'D');
-  }
+        $pdf->Cell(80, 10, 'Despesas', 1, 0, 'L');
+        $pdf->Cell(80, 10, number_format($despesa, 2, ',', '.'), 1, 1, 'C');
 
+        $pdf->Cell(80, 10, 'Margem de lucro', 1, 0, 'L');
+        $pdf->Cell(80, 10, $margem_lucro . ' (%)', 1, 1, 'C');
 
+        $pdf->Cell(80, 10, 'R.O.I', 1, 0, 'L');
+        $pdf->Cell(80, 10, $roi . ' (%)', 1, 1, 'C');
 
-
-
-
+        $pdf->Output('DRE-' . $nome . '-' . $data . '.pdf', 'D');
+    }
 }

@@ -1,76 +1,74 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-/**
- * Class Inicio
- *
- * Controlador responsável pelas páginas iniciais do site.
- */
 class Inicio extends CI_Controller
 {
+    private $data = [];
 
-  var $data = array();
-  var $page = array();
+    public function __construct()
+    {
+        parent::__construct();
+        date_default_timezone_set("America/Bahia");
 
-  function __construct()
-  {
-    parent::__construct();
-    date_default_timezone_set("America/Bahia");
-  }
+        // Helpers, models e libraries necessários
+        $this->load->helper('session');
+        $this->load->model('empresa');
+        $this->load->library('auth');
+    }
 
-  /**
-   * Página inicial do site.
-   *
-   * @return void
-   */
-  public function index()
-  {
-    $this->page['titulo'] = "Início";
-    $this->page['css'] = $this->load->view("home/css", $this->data, true);
-    $this->page['js'] = $this->load->view("home/js", $this->data, true);
-    $this->page['content'] = $this->load->view("home/index", $this->data, true);
-    $this->load->view('default/template', array('page' => $this->page));
-  }
+    public function index()
+    {
+        $id = get_user_id(); // helper session        
 
-  /**
-   * Página "Sobre".
-   *
-   * @return void
-   */
-  public function sobre()
-  {
-    $this->page['titulo'] = "Sobre";
-    $this->page['css'] = $this->load->view("sobre/css", $this->data, true);
-    $this->page['js'] = $this->load->view("sobre/js", $this->data, true);
-    $this->page['content'] = $this->load->view("sobre/index", $this->data, true);
-    $this->load->view('default/template', array('page' => $this->page));
-  }
+        if (!$id || !$this->empresa->existe_empresa()) {
+            $this->data['empresa'] = null;
+            $this->data['margem_lucro'] = 0;
+            $this->data['roi'] = 0;
+        } else {
+            $empresa = $this->empresa->get_empresa_by_user();
+            $lucro_liquido = floatval($empresa['lucro_liquido']);
+            $receita = floatval($empresa['receita']);
+            $investimento = floatval($empresa['investimento']);
 
-  /**
-   * Página do dashboard.
-   *
-   * @return void
-   */
-  public function dashboard()
-  {
-    $this->page['titulo'] = "Dashboard";
-    $this->page['css'] = $this->load->view("dashboard/css", $this->data, true);
-    $this->page['js'] = $this->load->view("dashboard/js", $this->data, true);
-    $this->page['content'] = $this->load->view("dashboard/index", $this->data, true);
-    $this->load->view('default/template', array('page' => $this->page));
-  }
+            $this->data['empresa'] = $empresa;
+            $this->data['margem_lucro'] = $receita > 0 ? ($lucro_liquido / $receita) * 100 : 0;
+            $this->data['roi'] = $investimento > 0 ? ($lucro_liquido / $investimento) * 100 : 0;
+        }
 
-  /**
-   * Obtém o valor de um campo de entrada.
-   *
-   * @param string $name O nome do campo de entrada.
-   *
-   * @return mixed Retorna o valor do campo de entrada ou uma string vazia se não houver valor definido.
-   */
-  private function get_input($name)
-  {
-    $input = $this->input->post($name);
-    $input = isset($input) ? $input : '';
-    return addslashes($input);
-  }
+
+        $this->load_page('home/index', 'Início');
+    }
+
+    public function sobre()
+    {
+        $this->load_page('sobre/index', 'Sobre');
+    }
+
+    public function dashboard()
+    {
+        $this->load_page('dashboard/index', 'Dashboard');
+    }
+
+    /**
+     * Carrega template padrão
+     */
+    private function load_page($view, $titulo)
+    {
+        $page = [
+            'titulo' => $titulo,
+            'css' => $this->load->view(str_replace('index', 'css', $view), $this->data, true),
+            'js' => $this->load->view(str_replace('index', 'js', $view), $this->data, true),
+            'content' => $this->load->view($view, $this->data, true)
+        ];
+
+        $this->load->view('default/template', ['page' => $page]);
+    }
+
+    /**
+     * Retorna valor de input POST
+     */
+    private function get_input($name)
+    {
+        return addslashes(trim($this->input->post($name) ?? ''));
+    }
 }

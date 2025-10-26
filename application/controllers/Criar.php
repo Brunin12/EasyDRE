@@ -1,143 +1,126 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-/**
- * Class Criar
- *
- * Este controlador gerencia as operações relacionadas às criações de usuários e empresas como DRE's e Empresas.
- */
 class Criar extends CI_Controller
 {
+    private array $data = [];
+    private array $page = [];
 
-  var $data = array();
-  var $page = array();
+    public function __construct()
+    {
+        parent::__construct();
+        date_default_timezone_set("America/Bahia");
 
-  function __construct()
-  {
-    parent::__construct();
-    date_default_timezone_set("America/Bahia");
-  }
-  public function empresa()
-  {
-    $this->form_validation->set_rules('nome', 'Nome', 'trim|required');
-    $this->form_validation->set_rules('cpf-cnpj', 'cpf-CNPJ', 'trim|required');
-    if ($this->form_validation->run() == FALSE) {
-      if ($_REQUEST == "POST") {
-        $this->session_m->set_flashdata('error', 'Erro: ' . validation_errors());
-        redirect(base_url('criar/empresa'));
-      }
-      $this->page['titulo'] = "Cadastro Empresa";
-      $this->page['css'] = $this->load->view("cadastro_empresa/css", $this->data, true);
-      $this->page['js'] = $this->load->view("cadastro_empresa/js", $this->data, true);
-      $this->page['content'] = $this->load->view("cadastro_empresa/index", $this->data, true);
-      $this->load->view('default/template', array('page' => $this->page));
-    } else {
-      $nome = $this->get_input('nome');
-      $cpfcnpj = $this->get_input('cpf_cnpj');
-      $data = array(
-        'nome' => $nome,
-        'cpf_cnpj' => $cpfcnpj,
-        'flag' => "ATIVO"
-      );
-
-      $id = $this->empresa->inserir($data);
-      $this->usuario->atualiza(['id_empresa' => $id]);
-
-      $empresa = array(
-        'nome' => $data['nome'],
-        'cpf_cnpj' => $data['cpf_cnpj'],
-        'id_empresa' => $id
-      );
-
-      $this->session_m->set_userdata('empresa', $empresa);
-      $this->session_m->set_flashdata('msg', 'Empresa Cadastrada!');
-      redirect(base_url());
+        $this->load->model('empresa');
+        $this->load->model('usuario');
+        $this->load->library('form_validation');
+        $this->load->library('auth');
+        $this->load->helper('session'); // helpers get_user_id() e get_empresa_session()
     }
-  }
 
-  public function dre()
-  {
-    $this->form_validation->set_rules('saldo', 'Saldo', 'trim|required');
-    $this->form_validation->set_rules('despesa', 'Despesa', 'trim|required');
-    $this->form_validation->set_rules('receita', 'Receita Total', 'trim|required');
-    $this->form_validation->set_rules('investimento', 'Investimento', 'trim|required');
-    if ($this->form_validation->run() == FALSE) {
-      $this->session_m->set_flashdata('error', validation_errors());
-      redirect(base_url('criar/dados_dre'));
-    } else {
-      $despesa = $this->get_input('despesa');
-      $receita = $this->get_input('receita');
-      $investimento = $this->get_input('investimento');
-      $saldo = $this->get_input('saldo');
-      $lucro_liquido = $receita - ($despesa + $investimento);
-      $dados = array(
-        'lucro_liquido' => $lucro_liquido,
-        'receita' => $receita,
-        'despesa' => $despesa,
-        'investimento' => $investimento,
-        'saldo' => $saldo,
-      );
-      $id_empresa = $this->session_m->userdata('empresa')['id_empresa'];
-      $this->empresa->atualiza($dados, array('id_empresa' => $id_empresa));
-      $empresa = $this->empresa->get_empresa($dados);
-      $dre = $this->empresa->gerar_dre($empresa);
-      $dre['margem_lucro'] =
-        (($empresa->receita / $empresa->lucro_liquido) * 100);
-      $dre['roi'] =
-        (($empresa->investimento / $empresa->lucro_liquido) * 100);
+    /** Cadastro de empresa */
+    public function empresa()
+    {
+        $this->form_validation->set_rules('nome', 'Nome', 'trim|required');
+        $this->form_validation->set_rules('cpf_cnpj', 'CPF/CNPJ', 'trim|required');
 
-      $dre_existe = $this->auth->existe_dre();
-      if (!$dre_existe) {
-        redirect(base_url('visualizar/dre'));
-      }
-      $this->data['dre'] = $dre;
-      $this->page['titulo'] = "Ver DRE";
-      $this->page['content'] = $this->load->view("dre/ver", $this->data, true);
-      $this->load->view('default/template', array('page' => $this->page));
+        if ($this->form_validation->run() === false) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $this->session->set_flashdata('error', 'Erro: ' . validation_errors());
+                redirect(base_url('criar/empresa'));
+            }
+            $this->render_view('Cadastro Empresa', 'cadastro_empresa');
+            return;
+        }
+
+        $nome = $this->get_input('nome');
+        $cpf_cnpj = $this->get_input('cpf_cnpj');
+
+        $id_empresa = $this->empresa->inserir([
+            'nome' => $nome,
+            'cpf_cnpj' => $cpf_cnpj,
+            'flag' => 'ATIVO',
+            'id_usuario' => get_user_id(),
+        ]);
+
+        $this->usuario->atualiza(['id_empresa' => $id_empresa], ['id' => get_user_id()]);
+
+        $this->session->userdata('empresa')['nome'];
+        $this->session->userdata('empresa')['id_empresa'];
+
+
+        $this->session->set_flashdata('msg', 'Empresa Cadastrada!');
+        redirect(base_url());
     }
-  }
 
-  /**
-   * Página do Demonstrativo de Resultados (DRE).
-   *
-   * @return void
-   */
-  public function dados_dre()
-  {
-    $this->page['titulo'] = "Criando DRE";
-    $this->page['content'] = $this->load->view("dre/index", $this->data, true);
-    $this->load->view('default/template', array('page' => $this->page));
-  }
+    /** Criação/atualização do DRE */
+    public function dre()
+    {
+        $this->form_validation->set_rules('saldo', 'Saldo', 'trim|required');
+        $this->form_validation->set_rules('despesa', 'Despesa', 'trim|required');
+        $this->form_validation->set_rules('receita', 'Receita Total', 'trim|required');
+        $this->form_validation->set_rules('investimento', 'Investimento', 'trim|required');
 
-  /**
-   * Página do Demonstrativo de Resultados (DRE) em pdf.
-   *
-   * @return void
-   */
+        if ($this->form_validation->run() === false) {
+            $this->session->set_flashdata('error', validation_errors());
+            redirect(base_url('criar/dados_dre'));
+        }
 
-  public function dre_pdf()
-  {
-    $dre_existe = $this->auth->existe_dre();
-    if (!$dre_existe) {
-      redirect(base_url('visualizar/dre'));
+        $despesa = floatval($this->get_input('despesa'));
+        $receita = floatval($this->get_input('receita'));
+        $investimento = floatval($this->get_input('investimento'));
+        $saldo = floatval($this->get_input('saldo'));
+
+        // Lucro líquido
+        $lucro_liquido = $receita - ($despesa + $investimento);
+
+        $dados = compact('lucro_liquido', 'receita', 'despesa', 'investimento', 'saldo');
+        $id_empresa = $this->empresa->get_empresa_by_user()['id_empresa'];
+        $this->empresa->atualiza($dados, ['id_empresa' => $id_empresa]);
+
+        $empresa = $this->empresa->get_empresa_id($id_empresa);
+        $dre = $this->empresa->gerar_dre($empresa);
+
+        // Correção dos cálculos
+        $dre['margem_lucro'] = $receita > 0 ? ($lucro_liquido / $receita) * 100 : 0;
+        $dre['roi'] = $investimento > 0 ? ($lucro_liquido / $investimento) * 100 : 0;
+
+        if (!$this->empresa->existe_empresa()) {
+            redirect(base_url('visualizar/dre'));
+        }
+
+        $this->data['dre'] = $dre;
+        $this->render_view('Ver DRE', 'dre/ver');
     }
-    $id_empresa = $this->session_m->userdata('empresa')['id_empresa'];
-    $empresa = $this->empresa->get_empresa_id($id_empresa);
-    $this->empresa->gerar_dre_pdf($empresa);
-    redirect(base_url());
-  }
 
-  /**
-   * Obtém o valor de um campo de entrada.
-   *
-   * @param string $name O nome do campo de entrada.
-   *
-   * @return mixed Retorna o valor do campo de entrada ou uma string vazia se não houver valor definido.
-   */
-  private function get_input($name)
-  {
-    $input = $this->input->post($name);
-    $input = isset($input) ? $input : '';
-    return addslashes($input);
-  }
+    /** Página de criação de DRE */
+    public function dados_dre()
+    {
+        $this->render_view('Criando DRE', 'dre/criar');
+    }
+
+    /** Exporta DRE em PDF */
+    public function dre_pdf()
+    {
+        $empresa = $this->empresa->get_empresa_by_user();
+        $this->empresa->gerar_dre_pdf($empresa);
+
+        redirect(base_url());
+    }
+
+    /** Recupera input POST seguro */
+    private function get_input(string $name): string
+    {
+        return addslashes($this->input->post($name) ?? '');
+    }
+
+    /** Renderiza views de forma padrão */
+    private function render_view(string $titulo, string $view)
+    {
+        $this->page['titulo'] = $titulo;
+        $this->page['css'] = $this->load->view("$view/css", $this->data, true);
+        $this->page['js'] = $this->load->view("$view/js", $this->data, true);
+        $this->page['content'] = $this->load->view("$view/index", $this->data, true);
+        $this->load->view('default/template', ['page' => $this->page]);
+    }
 }

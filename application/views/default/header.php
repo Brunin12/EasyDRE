@@ -11,20 +11,39 @@
     <title>Easy DRE | Gerenciamento</title>
   <?php endif; ?>
   <?= isset($page['css']) ? $page['css'] : '' ?>
-  <!--     Fonts and icons     -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-  <!-- Nucleo Icons -->
-  <link href="<?= base_url('assets/admin/assets/css/nucleo-icons.css') ?>" rel="stylesheet" />
-  <link href="<?= base_url('assets/admin/assets/css/nucleo-svg.css') ?>" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-  <link href="<?= base_url('assets/admin/assets/css/nucleo-svg.css') ?>" rel="stylesheet" />
+  
+  <!-- Bootstrap Icons CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <!-- CSS Files -->
-  <link id="pagestyle" href="<?= base_url('assets/admin/assets/css/soft-ui-dashboard.css?v=1.0.7') ?>"
-    rel="stylesheet" />
+  <link id="pagestyle" href="<?= base_url('assets/admin/css/soft-ui-dashboard.css?v=1.0.7'); ?>" rel="stylesheet" />
   <!-- Nepcha Analytics (nepcha.com) -->
   <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
-  <script defer data-site="<?= base_url() ?>" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+  <!-- <script defer data-site="<?= base_url(); ?>" src="https://api.nepcha.com/js/nepcha-analytics.js"></script> -->
+
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <style>
+    body,
+    input,
+    button,
+    textarea {
+      font-family: 'Open Sans', sans-serif !important;
+    }
+
+    #sidenav-main {
+    position: fixed;       /* já tá */
+    top: 0;
+    left: 0;
+    height: 100vh;         /* altura total da tela */
+    overflow-y: auto;      /* permite scroll se o conteúdo passar */
+    overflow-x: hidden;    /* previne scroll horizontal */
+    padding-bottom: 1rem;  /* espaço para o footer */
+    }
+
+    .sidenav-footer {
+    position: sticky;
+    bottom: 0;
+}
 
 
+  </style>
 </head>

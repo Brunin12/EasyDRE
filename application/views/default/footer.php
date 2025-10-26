@@ -8,14 +8,14 @@
             document.write(new Date().getFullYear())
           </script>,
 
-          <a href="#" class="font-weight-bold" target="_blank">Brunin Soft</a>
+          <a href="#" class="font-weight-bold" target="_blank">BrunoSoft</a>
           Todos os direitos reservados
         </div>
       </div>
       <div class="col-lg-6">
         <ul class="nav nav-footer justify-content-center justify-content-lg-end">
           <li class="nav-item">
-            <a href="https://github.com/Brunin12" class="nav-link text-muted" target="_blank">Brunin Soft</a>
+            <a href="https://github.com/Brunin12" class="nav-link text-muted" target="_blank">BrunoSoft</a>
           </li>
           <li class="nav-item">
             <a href="<?= base_url('sobre') ?>" class="nav-link text-muted" target="_blank">Sobre</a>

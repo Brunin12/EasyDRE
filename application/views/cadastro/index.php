@@ -1,5 +1,5 @@
 <section class="min-vh-100 mb-8">
-      <div class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg" style="background-image: url('<?= base_url('assets/admin/assets/img/curved-images/curved14.jpg')?>');">
+      <div class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg" style="background-image: url('<?= base_url('assets/admin/img/curved-images/curved14.jpg')?>');">
         <span class="mask bg-gradient-dark opacity-6"></span>
         <div class="container">
           <div class="row justify-content-center">
@@ -12,7 +12,7 @@
       </div>
       <div class="container">
         <div class="row mt-lg-n10 mt-md-n11 mt-n10">
-          <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
+          <div class="col-xl-5 col-lg-7 col-md-10 mx-auto">
             <div class="card z-index-0 border-2 shadow-md">
               <div class="card-header text-center pt-4">
                 <h5>Continuar com</h5>

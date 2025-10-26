@@ -1,100 +1,63 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 
-/**
- * Class Usuario_model
- *
- * Esta classe gerencia operações relacionadas aos usuários.
- */
 class Usuario_model extends CI_Model
 {
-
-  /**
-   * Obtém um usuário com base em um conjunto de dados fornecido.
-   *
-   * @param array $data O conjunto de dados usado para buscar o usuário.
-   *
-   * @return mixed Retorna o usuário encontrado ou null se não existir.
-   */
-  public function get_usuario($data)
-  {
-    return $this->db->get_where('usuario', $data)->row();
-  }
-
-  /**
-   * Obtém um usuário com base em seu ID.
-   *
-   * @param int $id O ID do usuário a ser buscado.
-   *
-   * @return mixed Retorna o usuário encontrado ou null se não existir.
-   */
-  public function get_usuario_id($id)
-  {
-    return $this->db->get_where('usuario', array('id' => $id))->row();
-  }
-
-  /**
-   * Insere um novo usuário no banco de dados.
-   *
-   * @param array $data Os dados do usuário a serem inseridos.
-   *
-   * @return int Retorna o ID do usuário inserido.
-   */
-  public function inserir($data)
-  {
-    $this->db->insert('usuario', $data);
-    return $this->db->insert_id();
-  }
-
-  public function atualiza($data)
-  {
-    $this->db->update('usuario', $data);
-  }
-
-  /**
-   * Realiza a operação de login.
-   *
-   * @param array $form Os dados de formulário do login.
-   *
-   * @return void
-   */
-  public function login($form)
-  {
-    $data = $this->db->get_where('usuario', $form)->row();
-    $linhas_afetadas = $this->db->affected_rows();
-    if ($linhas_afetadas > 0 && $data->flag == 'ATIVO') {
-      $this->session_m->set_flashdata("msg", "Entrou com Sucesso");
-      return $data;
-    } else {
-      $this->session_m->set_flashdata("error", "Nenhum usuário ativo foi encontrado.");
-      redirect(base_url('conta/entrar'));
-    }
-  }
-
-  public function is_logado() {
-    $data = $this->session_m->userdata('user');
-    if (isset($data)) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Realiza a operação de logout.
-   *
-   * @return void
-   */
-  public function sair()
-  {
-
-    $this->session->unset_userdata(sha1('user'));
-    unset($_SESSION[sha1('user')]);
-    $this->session->sess_destroy();
-
-    if (isset($_SESSION[sha1('user')])) {
-      $this->session_m->set_flashdata('error', 'Um erro aconteceu, usuário não fez o logoff. Tente novamente mais tarde.');
-      redirect(base_url());
+    public function get_usuario($data)
+    {
+        return $this->db->get_where('usuario', $data)->row();
     }
 
-    $this->auth->se_autenticado();
-  }
+    public function get_usuario_id($id)
+    {
+        return $this->db->get_where('usuario', ['id' => $id])->row();
+    }
+
+    public function inserir($data)
+    {
+        $this->db->insert('usuario', $data);
+        return $this->db->insert_id();
+    }
+
+    public function atualiza($data, $where)
+    {
+        $this->db->update('usuario', $data, $where);
+    }
+
+    public function login($form)
+    {
+        $user = $this->get_usuario($form);
+        if ($user && $user->flag === 'ATIVO') {
+            $this->session->set_userdata('user', [
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email
+            ]);
+            $this->session->set_flashdata("msg", "Entrou com sucesso");
+            return $user;
+        }
+
+        $this->session->set_flashdata("error", "Nenhum usuário ativo foi encontrado.");
+        redirect(base_url('conta/entrar'));
+    }
+
+    public function is_logado()
+    {
+        return $this->session->userdata('user') ? true : false;
+    }
+
+    public function sair()
+    {
+        $this->session->unset_userdata('user');
+        $this->session->sess_destroy();
+
+        if ($this->session->userdata('user')) {
+            $this->session->set_flashdata('error', 'Um erro aconteceu, usuário não fez o logoff. Tente novamente mais tarde.');
+            redirect(base_url());
+        }
+
+        // Garante que usuário será redirecionado caso não esteja logado
+        $this->load->library('auth');
+        $this->auth->se_autenticado();
+    }
 }

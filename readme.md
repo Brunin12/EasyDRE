@@ -1,70 +1,98 @@
-# EasyDRE
+# Sistema EasyDRE
 
-O EasyDRE é uma plataforma que oferece soluções para a elaboração e análise de Demonstrativos de Resultado do Exercício (DRE) de forma simplificada e intuitiva.
+Projeto de **gestão financeira / DRE** feito em **CodeIgniter 3** + **MySQL**.
+Diz a real: o banco não está aqui — é privado. Quer o `.sql`? Fala comigo.
 
-## Funcionalidades
+---
 
-- **Dashboard Intuitivo:** Tenha uma visão clara e organizada das principais informações financeiras da sua empresa.
+## O que faz
 
-- **Criação de DRE:** Crie Demonstrativos de Resultado do Exercício de forma rápida e fácil, sem a necessidade de conhecimentos contábeis avançados.
+* Controla empresas, saldos, receitas, despesas e investimentos.
+* Calcula **lucro líquido**, **margem de lucro** e **ROI**.
+* Gera DRE e relatórios básicos.
+* Interface administrativa via views do CodeIgniter 3.
 
-- **Análises Detalhadas:** Obtenha insights valiosos sobre o desempenho financeiro da sua empresa com gráficos e relatórios detalhados.
+---
 
-- **Gestão de Empresas:** Cadastre e gerencie informações sobre as empresas associadas à sua conta.
+## Tecnologias
 
-- **Perfil de Usuário:** Mantenha seu perfil atualizado e visualize informações relevantes sobre sua conta.
+* Backend: **PHP (CodeIgniter 3)**
+* Banco: **MySQL**
+* Frontend: HTML / CSS / JS (views do CI3)
 
-## Como Usar
+---
 
-1. Faça login ou crie uma conta no EasyDRE.
+## Instalação rápida (direto ao ponto)
 
-2. No Dashboard, selecione a empresa desejada ou crie uma nova.
+1. Clone:
 
-3. Crie um novo Demonstrativo de Resultado do Exercício, inserindo as informações necessárias.
+```bash
+git clone https://github.com/brunin12/SEU_PROJETO.git
+```
 
-4. Explore as análises e relatórios disponíveis para tomar decisões informadas.
+2. Coloque o projeto no `www`/`htdocs` do seu servidor (XAMPP, WAMP, Laragon).
 
-## Tecnologias Utilizadas
+3. **Ajuste o `base_url`** no CodeIgniter 3:
 
-- Frontend: HTML, CSS, JavaScript
-- Backend: PHP, CodeIgniter
-- Banco de Dados: MySQL
+* Abra `application/config/config.php`
+* Altere:
 
-## Requisitos
+```php
+$config['base_url'] = 'http://seu-host-aqui/SEU_PROJETO/';
+```
 
-- Navegador Web Moderno (Recomendado: Google Chrome, Mozilla Firefox)
+Use a URL que você usa na sua máquina (ex.: `http://localhost/SEU_PROJETO/`).
 
-## Instalação Local (Desenvolvimento)
+4. Configure a conexão com o banco em `application/config/database.php`:
 
-1. Clone o repositório: `git clone https://github.com/seu-usuario/easydre.git`
+```php
+$db['default'] = array(
+  'dsn'   => '',
+  'hostname' => 'localhost',
+  'username' => 'SEU_USUARIO',
+  'password' => 'SUA_SENHA',
+  'database' => 'NOME_DO_BANCO',
+  'dbdriver' => 'mysqli',
+  // demais configurações
+);
+```
 
-2. Configure o ambiente PHP e o banco de dados MySQL.
+5. **Banco de dados**
+   O arquivo `.sql` **não está incluído** neste repositório — é privado. Para obter o dump (estrutura + dados de teste) e instruções de importação, **entre em contato com o desenvolvedor**.
 
-3. Configure as credenciais do banco de dados no arquivo `application/config/database.php`.
+Importação (quem receber o `.sql`):
 
-4. Inicie o servidor local.
+```bash
+mysql -u USUARIO -p NOME_DO_BANCO < banco.sql
+```
 
-5. Acesse `http://localhost/easydre` no seu navegador.
+ou use MySQL Workbench / phpMyAdmin.
 
-## Contribuição
+---
 
-1. Faça um Fork do repositório.
+## Segurança e demo
 
-2. Crie um branch para a sua contribuição: `git checkout -b feature/nova-feature`.
+* Se for avaliar o sistema, peça uma **demo hospedada** em vez do código-fonte.
+* Não coloque credenciais reais em `database.php` antes de commitar. Use `.gitignore` para arquivos sensíveis.
 
-3. Faça o commit das suas alterações: `git commit -m 'Adiciona nova feature'`.
+---
 
-4. Faça o push para o seu repositório: `git push origin feature/nova-feature`.
+## Observações rápidas
 
-5. Crie um Pull Request.
+* Mantive o código enxuto e direto para facilitar entendimento.
+* Se quiser, eu converto pra migrations ou preparo um dump sanitizado (somente estrutura + dados de teste).
 
-## Equipe
-- Bruno Parreira
+---
+
+## Contato (para obter o banco / negociar licença / demo)
+
+**Bruno Parreira**
+
+* Telefone/WhatsApp: **+55 75 99239-3146**
+* Email: **[brunoparreira77@gmail.com](mailto:brunoparreira77@gmail.com)**
+* GitHub: **brunin12**
+
 
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
----
-
-Para mais informações, visite [nosso site](https://www.easydre.com).

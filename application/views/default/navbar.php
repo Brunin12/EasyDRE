@@ -6,26 +6,27 @@
       <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
         <li class="nav-item d-flex align-items-center">
           <a href="<?= base_url('visualizar/perfil') ?>" class="nav-link text-body font-weight-bold px-0 ">
-            <img src="<?= base_url('assets/site/favicon-32x32.png') ?>" class="navbar-brand-img h-100 mx-auto my-auto" alt="main_logo">
-            <?php
-            if ($this->usuario->is_logado()):
-              $nome = $this->session_m->userdata('user')['nome']; ?>
-  
-                <span class="d-sm-inline d-none mx-3 h5 text-light">
-                <?= $nome ?>
-              </span>
+            <img src="<?= base_url('assets/site/favicon-32x32.png') ?>" class="navbar-brand-img h-100 mx-auto my-auto"
+              alt="main_logo">
+            <?php if ($this->usuario->is_logado()):
+              $nome = $this->session->userdata('user')['nome']; ?>
+              <span class="d-sm-inline d-none mx-3 h5 text-light"><?= $nome ?> </span>
+            <?php else: ?>
+              <span class="d-sm-inline d-none mx-3 h5 text-light">Easy DRE</span>
             <?php endif; ?>
           </a>
         </li>
       </ol>
     </nav>
+
     <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
       <div class="ms-md-auto pe-md-3 d-flex align-items-center">
         <div class="input-group">
-          <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
+          <span class="input-group-text text-body"><i class="bi bi-search"></i></span>
           <input type="text" class="form-control" placeholder="Pesquisar">
         </div>
       </div>
+
       <ul class="navbar-nav justify-content-end">
         <?php if (!$this->usuario->is_logado()): ?>
           <li class="nav-item d-flex align-items-center">
@@ -77,24 +78,24 @@
             </div>
           </li>
         <?php endif ?>
+
         <li class="nav-item d-flex align-items-center">
           <a href="<?= base_url('sobre') ?>" class="nav-link text-body font-weight-bold px-0 ">
-
             <span class="d-sm-inline d-none text-light">Sobre</span>
           </a>
         </li>
+
         <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
           <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
             <div class="sidenav-toggler-inner">
-              <i class="sidenav-toggler-line"></i>
-              <i class="sidenav-toggler-line"></i>
-              <i class="sidenav-toggler-line"></i>
+              <i class="bi bi-list"></i>
             </div>
           </a>
         </li>
+
         <li class="nav-item px-3 d-flex align-items-center">
           <a href="<?= base_url('') ?>" class="nav-link text-body p-0">
-            <i class="fa fa-moon fixed-plugin-button-nav cursor-pointer"></i>
+            <i class="bi bi-moon-fill"></i>
           </a>
         </li>
       </ul>
