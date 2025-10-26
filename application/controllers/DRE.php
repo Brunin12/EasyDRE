@@ -1,10 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Criar extends CI_Controller
+class DRE extends MY_Controller
 {
-    private array $data = [];
-    private array $page = [];
+    protected $data = [];
+    protected $page = [];
 
     public function __construct()
     {
@@ -18,8 +18,25 @@ class Criar extends CI_Controller
         $this->load->helper('session'); // helpers get_user_id() e get_empresa_session()
     }
 
+    public function index()
+    {
+        // Formulário de Cadastro de DRE Instantânea
+        $this->data['empresa'] = (object) $this->empresa->get_empresa_by_user();
+        $this->load_page('dre/create', 'Gerar DRE Instantânea');
+    }
+
+    public function view()
+    {
+        // Formulário de Cadastro de DRE Instantânea
+        $dados = $this->empresa->get_empresa_by_user();
+        $this->data['dre'] = $this->empresa->gerar_dre((object) $dados);
+        $this->data['nome'] = $dados['nome'];
+        $this->load_page('dre/view', 'Visualizar DRE Principal');
+    }
+
+
     /** Cadastro de empresa */
-    public function empresa()
+    public function company()
     {
         $this->form_validation->set_rules('nome', 'Nome', 'trim|required');
         $this->form_validation->set_rules('cpf_cnpj', 'CPF/CNPJ', 'trim|required');
@@ -29,32 +46,31 @@ class Criar extends CI_Controller
                 $this->session->set_flashdata('error', 'Erro: ' . validation_errors());
                 redirect(base_url('criar/empresa'));
             }
-            $this->render_view('Cadastro Empresa', 'cadastro_empresa');
+            $this->load_page('Cadastro Empresa', 'cadastro_empresa');
             return;
         }
 
         $nome = $this->get_input('nome');
         $cpf_cnpj = $this->get_input('cpf_cnpj');
 
-        $id_empresa = $this->empresa->inserir([
+        $id = $this->empresa->insert([
             'nome' => $nome,
             'cpf_cnpj' => $cpf_cnpj,
             'flag' => 'ATIVO',
             'id_usuario' => get_user_id(),
         ]);
 
-        $this->usuario->atualiza(['id_empresa' => $id_empresa], ['id' => get_user_id()]);
+        $this->usuario->update(['id' => $id], ['id' => get_user_id()]);
 
         $this->session->userdata('empresa')['nome'];
-        $this->session->userdata('empresa')['id_empresa'];
+        $this->session->userdata('empresa')['id'];
 
 
         $this->session->set_flashdata('msg', 'Empresa Cadastrada!');
         redirect(base_url());
     }
 
-    /** Criação/atualização do DRE */
-    public function dre()
+    public function save()
     {
         $this->form_validation->set_rules('saldo', 'Saldo', 'trim|required');
         $this->form_validation->set_rules('despesa', 'Despesa', 'trim|required');
@@ -70,37 +86,57 @@ class Criar extends CI_Controller
         $receita = floatval($this->get_input('receita'));
         $investimento = floatval($this->get_input('investimento'));
         $saldo = floatval($this->get_input('saldo'));
+        $id_empresa = $this->empresa->get_empresa_by_user()['id'];
+        $nome = $this->get_input('nome');
 
         // Lucro líquido
         $lucro_liquido = $receita - ($despesa + $investimento);
 
-        $dados = compact('lucro_liquido', 'receita', 'despesa', 'investimento', 'saldo');
-        $id_empresa = $this->empresa->get_empresa_by_user()['id_empresa'];
-        $this->empresa->atualiza($dados, ['id_empresa' => $id_empresa]);
+        // Monta objeto/dados
+        $dados = [
+            'id_empresa' => $id_empresa,
+            'saldo' => $saldo,
+            'lucro_liquido' => $lucro_liquido,
+            'receita' => $receita,
+            'despesa' => $despesa,
+            'investimento' => $investimento,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
 
-        $empresa = $this->empresa->get_empresa_id($id_empresa);
-        $dre = $this->empresa->gerar_dre($empresa);
+        // Checa se já existe DRE para a empresa (ou registro único)
+        //$dre_existente = $this->db->get('dre')->row(); // ajuste se tiver empresa_id
 
-        // Correção dos cálculos
-        $dre['margem_lucro'] = $receita > 0 ? ($lucro_liquido / $receita) * 100 : 0;
-        $dre['roi'] = $investimento > 0 ? ($lucro_liquido / $investimento) * 100 : 0;
+        // if ($dre_existente) {
+        // Atualiza DRE existente
+        // $this->db->where('id', $dre_existente->id);
+        // $this->db->update('dre', $dados);
+      
+        // Cria novo registro
+        $dados['created_at'] = date('Y-m-d H:i:s');
+        $this->db->insert('dre', $dados);
+        
+
+        // Gera DRE instantâneo (sem mexer no DB, apenas cálculo)
+        $dre = $this->empresa->gerar_dre((object) $dados);
 
         if (!$this->empresa->existe_empresa()) {
-            redirect(base_url('visualizar/dre'));
+            redirect(base_url('/'));
         }
 
         $this->data['dre'] = $dre;
-        $this->render_view('Ver DRE', 'dre/ver');
+        $this->data['nome'] = $nome;
+        $this->load_page('dre/list', 'Ver DRE');
     }
 
+
     /** Página de criação de DRE */
-    public function dados_dre()
+    public function show()
     {
-        $this->render_view('Criando DRE', 'dre/criar');
+        $this->load_page('Criando DRE', 'dre/criar');
     }
 
     /** Exporta DRE em PDF */
-    public function dre_pdf()
+    public function export()
     {
         $empresa = $this->empresa->get_empresa_by_user();
         $this->empresa->gerar_dre_pdf($empresa);
@@ -108,19 +144,4 @@ class Criar extends CI_Controller
         redirect(base_url());
     }
 
-    /** Recupera input POST seguro */
-    private function get_input(string $name): string
-    {
-        return addslashes($this->input->post($name) ?? '');
-    }
-
-    /** Renderiza views de forma padrão */
-    private function render_view(string $titulo, string $view)
-    {
-        $this->page['titulo'] = $titulo;
-        $this->page['css'] = $this->load->view("$view/css", $this->data, true);
-        $this->page['js'] = $this->load->view("$view/js", $this->data, true);
-        $this->page['content'] = $this->load->view("$view/index", $this->data, true);
-        $this->load->view('default/template', ['page' => $this->page]);
-    }
 }

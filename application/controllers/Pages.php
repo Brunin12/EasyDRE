@@ -1,9 +1,9 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Inicio extends CI_Controller
+class Pages extends MY_Controller
 {
-    private $data = [];
+    protected $data = [];
 
     public function __construct()
     {
@@ -11,14 +11,19 @@ class Inicio extends CI_Controller
         date_default_timezone_set("America/Bahia");
 
         // Helpers, models e libraries necessários
-        $this->load->helper('session');
         $this->load->model('empresa');
-        $this->load->library('auth');
     }
+
 
     public function index()
     {
-        $id = get_user_id(); // helper session        
+        $user = $this->session->userdata('user'); // pega o array 'user' da sessão
+
+        $id = null; // valor padrão caso não esteja logado
+        if ($user && isset($user['id'])) {
+            $id = $user['id'];
+        }
+
 
         if (!$id || !$this->empresa->existe_empresa()) {
             $this->data['empresa'] = null;
@@ -36,39 +41,21 @@ class Inicio extends CI_Controller
         }
 
 
-        $this->load_page('home/index', 'Início');
+        $this->load_page('pages/home', 'Início');
     }
 
-    public function sobre()
+    public function about()
     {
-        $this->load_page('sobre/index', 'Sobre');
+        $this->load_page('pages/about', 'Sobre');
     }
 
     public function dashboard()
     {
-        $this->load_page('dashboard/index', 'Dashboard');
+        $this->load_page('pages/dashboard', 'Dashboard');
     }
 
-    /**
-     * Carrega template padrão
-     */
-    private function load_page($view, $titulo)
+    public function profile()
     {
-        $page = [
-            'titulo' => $titulo,
-            'css' => $this->load->view(str_replace('index', 'css', $view), $this->data, true),
-            'js' => $this->load->view(str_replace('index', 'js', $view), $this->data, true),
-            'content' => $this->load->view($view, $this->data, true)
-        ];
-
-        $this->load->view('default/template', ['page' => $page]);
-    }
-
-    /**
-     * Retorna valor de input POST
-     */
-    private function get_input($name)
-    {
-        return addslashes(trim($this->input->post($name) ?? ''));
+        $this->load_page('pages/profile', 'Perfil');
     }
 }

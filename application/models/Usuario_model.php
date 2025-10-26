@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Usuario_model extends CI_Model
 {
@@ -38,7 +38,7 @@ class Usuario_model extends CI_Model
         }
 
         $this->session->set_flashdata("error", "Nenhum usuário ativo foi encontrado.");
-        redirect(base_url('conta/entrar'));
+        redirect(base_url('entrar'));
     }
 
     public function is_logado()
@@ -48,16 +48,22 @@ class Usuario_model extends CI_Model
 
     public function sair()
     {
+        // Remove o usuário da sessão e destrói a sessão
         $this->session->unset_userdata('user');
         $this->session->sess_destroy();
 
+        // Checa se o usuário ainda está logado
         if ($this->session->userdata('user')) {
-            $this->session->set_flashdata('error', 'Um erro aconteceu, usuário não fez o logoff. Tente novamente mais tarde.');
+            $this->session->set_flashdata(
+                'error',
+                'Um erro aconteceu, usuário não fez o logoff. Tente novamente mais tarde.'
+            );
             redirect(base_url());
+            exit;
         }
 
-        // Garante que usuário será redirecionado caso não esteja logado
-        $this->load->library('auth');
-        $this->auth->se_autenticado();
+        // Se chegou aqui, usuário já deslogou
+        redirect('entrar'); // redireciona para login ou página inicial
     }
+
 }

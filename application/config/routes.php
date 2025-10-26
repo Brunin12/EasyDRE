@@ -49,10 +49,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'inicio';
-$route['404_override'] = '';
-$route['translate_uri_dashes'] = FALSE;
 
-$route['dashboard'] = 'inicio/dashboard';
-$route['sobre'] = 'inicio/sobre';
+// Rota padrão
+$route['default_controller'] = 'pages';
 
+// Páginas institucionais
+$route['sobre'] = 'pages/about';
+$route['perfil'] = 'pages/profile';
+
+$route['empresa'] = 'pages/company';
+$route['relatorio'] = 'pages/dashboard';
+
+// Sessão
+$route['cadastro'] = 'auth/register';
+$route['entrar'] = 'auth/login';
+$route['sair'] = 'auth/logout';
+
+// DRE
+$route['dre'] = 'dre/index';
+$route['dre/principal'] = 'dre/view';
+$route['dre/pdf'] = 'dre/export';
+$route['dre/salvar'] = 'dre/save';
+$route['lancamentos'] = 'lancamentos/list';
+$route['lancamento/novo'] = 'lancamentos/form';
+$route['lancamentos/salvar'] = 'lancamentos/save';

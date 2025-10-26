@@ -5,7 +5,7 @@
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
         <li class="nav-item d-flex align-items-center">
-          <a href="<?= base_url('visualizar/perfil') ?>" class="nav-link text-body font-weight-bold px-0 ">
+          <a href="<?= base_url('perfil') ?>" class="nav-link text-body font-weight-bold px-0 ">
             <img src="<?= base_url('assets/site/favicon-32x32.png') ?>" class="navbar-brand-img h-100 mx-auto my-auto"
               alt="main_logo">
             <?php if ($this->usuario->is_logado()):
@@ -43,7 +43,7 @@
                         <p class="mb-0">Digite seu E-mail e sua senha para entrar na sua conta</p>
                       </div>
                       <div class="card-body">
-                        <form role="form text-left" action="<?= base_url('conta/entrar') ?>" method="POST">
+                        <form role="form text-left" action="<?= base_url('entrar') ?>" method="POST">
                           <label>Email</label>
                           <div class="input-group mb-3">
                             <input type="email" class="form-control" placeholder="Email" aria-label="Email" name="email"
@@ -67,7 +67,7 @@
                       <div class="card-footer text-center pt-0 px-lg-2 px-1">
                         <p class="mb-4 text-sm mx-auto">
                           Não tem uma conta?
-                          <a href="<?= base_url('conta/criar') ?>" class="text-info text-gradient font-weight-bold">Criar
+                          <a href="<?= base_url('cadastro') ?>" class="text-info text-gradient font-weight-bold">Criar
                             uma Conta</a>
                         </p>
                       </div>

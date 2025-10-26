@@ -3,36 +3,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Empresa_model extends CI_Model
 {
-    public function get_empresa($data)
-    {
-        return $this->db->get_where('empresa', $data)->row();
-    }
-
-    public function get_empresa_id($id)
-    {
-        return $this->db->get_where('empresa', ['id_empresa' => $id])->row();
-    }
-
-    public function get()
-    {
-        $empresa_session = $this->session->userdata('empresa');
-        if (!$empresa_session)
-            return null;
-
-        return $this->get_empresa_id($empresa_session['id_empresa']);
-    }
-
-    public function inserir($data)
-    {
-        $this->db->insert('empresa', $data);
-        return $this->db->insert_id();
-    }
-
-    public function atualiza($data, $where)
-    {
-        $this->db->update('empresa', $data, $where);
-    }
-
     public function existe_empresa($id_usuario = 0)
     {
         if ($id_usuario == 0) {
@@ -65,8 +35,9 @@ class Empresa_model extends CI_Model
         $despesa = $empresa->despesa;
         $investimento = $empresa->investimento;
 
-        $margem_lucro = $lucro_liquido != 0 ? ($lucro_liquido / $receita) * 100 : 0;
+        $margem_lucro = $receita != 0 ? ($lucro_liquido / $receita) * 100 : 0;
         $roi = $investimento != 0 ? ($lucro_liquido / $investimento) * 100 : 0;
+
 
         return [
             'saldo' => $saldo,

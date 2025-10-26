@@ -2,7 +2,7 @@
   <div class="col-12">
     <div class="card mb-4">
       <div class="card-header pb-0">
-        <h4 class="text-center"><?= $this->empresa->get()->nome ?> (DRE)</h4>
+        <h4 class="text-center"><?= $nome ?> (DRE)</h4>
 
       </div>
       <div class="card-body px-0 pt-0 pb-2">
@@ -62,7 +62,7 @@
           </table>
           <hr>
           <div class="d-flex justify-content-center"> <!-- Adicionado o container flex -->
-                <a href="<?= base_url('criar/dre_pdf') ?>" class="btn btn-info w-75">Download .PDF</a>
+                <a href="<?= base_url('dre/pdf') ?>" class="btn btn-info w-75">Baixar .PDF</a>
           </div>
         </div>
       </div>

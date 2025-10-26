@@ -6,7 +6,7 @@
         <p class="mb-0 text-light">Digite seu email e sua senha para proseguir</p>
       </div>
       <div class="card-body">
-        <form role="form" action="<?= base_url("conta/entrar") ?>" method="POST">
+        <form role="form" action="<?= base_url("entrar") ?>" method="POST">
           <label class="text-light">Email</label>
           <div class="mb-3 text-light">
             <input type="email" class="form-control" placeholder="Email" aria-label="Email" name="email"
@@ -29,7 +29,7 @@
       <div class="card-footer text-center pt-0 px-lg-2 px-1">
         <p class="mb-4 text-sm mx-auto">
           Não tem uma conta?
-          <a href="<?= base_url('conta/criar') ?>" class="text-info text-gradient font-weight-bold">Criar uma conta</a>
+          <a href="<?= base_url('cadastro') ?>" class="text-info text-gradient font-weight-bold">Criar uma conta</a>
         </p>
       </div>
     </div>
