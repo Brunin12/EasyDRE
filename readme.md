@@ -1,7 +1,6 @@
 # Sistema EasyDRE
 
 Projeto de **gestão financeira / DRE** feito em **CodeIgniter 3** + **MySQL**.
-Diz a real: o banco não está aqui — é privado. Quer o `.sql`? Fala comigo.
 
 ---
 
@@ -27,7 +26,7 @@ Diz a real: o banco não está aqui — é privado. Quer o `.sql`? Fala comigo.
 1. Clone:
 
 ```bash
-git clone https://github.com/brunin12/SEU_PROJETO.git
+git clone https://github.com/brunin12/easydre.git
 ```
 
 2. Coloque o projeto no `www`/`htdocs` do seu servidor (XAMPP, WAMP, Laragon).
@@ -38,7 +37,7 @@ git clone https://github.com/brunin12/SEU_PROJETO.git
 * Altere:
 
 ```php
-$config['base_url'] = 'http://seu-host-aqui/SEU_PROJETO/';
+$config['base_url'] = 'http:/localhost/';
 ```
 
 Use a URL que você usa na sua máquina (ex.: `http://localhost/SEU_PROJETO/`).
@@ -51,7 +50,7 @@ $db['default'] = array(
   'hostname' => 'localhost',
   'username' => 'SEU_USUARIO',
   'password' => 'SUA_SENHA',
-  'database' => 'NOME_DO_BANCO',
+  'database' => 'easydre',
   'dbdriver' => 'mysqli',
   // demais configurações
 );
