@@ -88,6 +88,8 @@
         </li>        
 
 
+        <?php endif; ?>
+        <?php if ($this->usuario->is_logado()): ?>
         <!-- Seção Perfil -->
         <li class="nav-item mt-3">
           <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Sobre o Perfil</h6>
@@ -104,7 +106,6 @@
             <span class="nav-link-text ms-1">Meu Perfil</span>
           </a>
         </li>
-
         <!-- Sair -->
         <li class="nav-item">
           <a class="nav-link active info" href="<?= base_url('sair') ?>">

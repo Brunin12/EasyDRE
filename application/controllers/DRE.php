@@ -10,12 +10,6 @@ class DRE extends MY_Controller
     {
         parent::__construct();
         date_default_timezone_set("America/Bahia");
-
-        $this->load->model('empresa');
-        $this->load->model('usuario');
-        $this->load->library('form_validation');
-        $this->load->library('auth');
-        $this->load->helper('session'); // helpers get_user_id() e get_empresa_session()
     }
 
     public function index()
@@ -35,41 +29,6 @@ class DRE extends MY_Controller
     }
 
 
-    /** Cadastro de empresa */
-    public function company()
-    {
-        $this->form_validation->set_rules('nome', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('cpf_cnpj', 'CPF/CNPJ', 'trim|required');
-
-        if ($this->form_validation->run() === false) {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $this->session->set_flashdata('error', 'Erro: ' . validation_errors());
-                redirect(base_url('criar/empresa'));
-            }
-            $this->load_page('Cadastro Empresa', 'cadastro_empresa');
-            return;
-        }
-
-        $nome = $this->get_input('nome');
-        $cpf_cnpj = $this->get_input('cpf_cnpj');
-
-        $id = $this->empresa->insert([
-            'nome' => $nome,
-            'cpf_cnpj' => $cpf_cnpj,
-            'flag' => 'ATIVO',
-            'id_usuario' => get_user_id(),
-        ]);
-
-        $this->usuario->update(['id' => $id], ['id' => get_user_id()]);
-
-        $this->session->userdata('empresa')['nome'];
-        $this->session->userdata('empresa')['id'];
-
-
-        $this->session->set_flashdata('msg', 'Empresa Cadastrada!');
-        redirect(base_url());
-    }
-
     public function save()
     {
         $this->form_validation->set_rules('saldo', 'Saldo', 'trim|required');
@@ -79,7 +38,7 @@ class DRE extends MY_Controller
 
         if ($this->form_validation->run() === false) {
             $this->session->set_flashdata('error', validation_errors());
-            redirect(base_url('criar/dados_dre'));
+            redirect(base_url('dre'));
         }
 
         $despesa = floatval($this->get_input('despesa'));

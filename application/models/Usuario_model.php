@@ -3,6 +3,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Usuario_model extends CI_Model
 {
+    protected $table = 'usuario';
     public function get_usuario($data)
     {
         return $this->db->get_where('usuario', $data)->row();

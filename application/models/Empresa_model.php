@@ -3,6 +3,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Empresa_model extends CI_Model
 {
+
+    protected $table = 'empresa';
     public function existe_empresa($id_usuario = 0)
     {
         if ($id_usuario == 0) {
@@ -25,6 +27,12 @@ class Empresa_model extends CI_Model
             ->where('id_usuario', $id_usuario)
             ->get('empresa')
             ->row_array();
+    }
+
+    public function inserir($data)
+    {
+        $this->db->insert($this->table, $data);
+        return $this->db->insert_id();
     }
 
     public function gerar_dre($empresa)

@@ -17,6 +17,8 @@ class Auth extends MY_Controller
         $this->form_validation->set_rules('email', 'E-Mail', 'trim|required|valid_email');
         $this->form_validation->set_rules('senha', 'Senha', 'trim|required');
         $this->form_validation->set_rules('nome', 'Nome', 'trim|required');
+        $this->form_validation->set_rules('empresa_nome', 'Nome da Empresa', 'trim|required');
+        $this->form_validation->set_rules('empresa_tipo', 'Tipo da Empresa', 'trim|required');
 
         if ($this->form_validation->run() === FALSE) {
             if ($this->input->method() === 'post') {
@@ -36,7 +38,19 @@ class Auth extends MY_Controller
 
         $id = $this->usuario->inserir($data);
 
+        $empresa_data = [
+            'nome' => $this->input->post('empresa_nome'),
+            'categoria' => $this->input->post('empresa_tipo'),
+            'id_usuario' => $id,
+        ];
+
+        $this->empresa->inserir($empresa_data);
+
         $this->session->set_userdata('user', ['nome' => $data['nome'], 'id' => $id]);
+
+
+        
+
         redirect(base_url());
     }
 
