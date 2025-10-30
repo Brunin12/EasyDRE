@@ -21,7 +21,6 @@ class DRE extends MY_Controller
 
     public function view()
     {
-        // Formulário de Cadastro de DRE Instantânea
         $dados = $this->empresa->get_empresa_by_user();
         $this->data['dre'] = $this->empresa->gerar_dre((object) $dados);
         $this->data['nome'] = $dados['nome'];
